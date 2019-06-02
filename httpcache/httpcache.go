@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"time"
 
 	bolt "go.etcd.io/bbolt"
 	"golang.org/x/time/rate"
@@ -47,10 +46,7 @@ func CachingRoundTripper() (http.RoundTripper, func()) {
 				}
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-			defer cancel()
-
-			err := limiter.Wait(ctx)
+			err := limiter.Wait(context.Background())
 			if err != nil {
 				return nil, err
 			}
