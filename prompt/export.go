@@ -9,15 +9,12 @@ import (
 	"sort"
 
 	"github.com/manifoldco/promptui"
-	"github.com/romainmenke/report-imgix-usage/counters"
 	"github.com/romainmenke/report-imgix-usage/sources"
 )
 
 func promptExport(sources *sources.Sources) bool {
 	items := []string{
-		"cost      -> csv",
-		"bandwidth -> csv",
-		"images    -> csv",
+		"csv",
 		backToMainSelect,
 		exitSelect,
 	}
@@ -27,40 +24,55 @@ func promptExport(sources *sources.Sources) bool {
 		Items: items,
 	}
 
-	_, result, err := prompt.Run()
+	_, csv, err := prompt.Run()
 	if err != nil {
 		fmt.Printf("Export entry failed %v\n", err)
 		return false
 	}
 
-	if v, ok := handleDefaultOptions(result); ok {
+	if v, ok := handleDefaultOptions(csv); ok {
 		return v
 	}
 
-	switch result {
-	case "cost      -> csv":
-		promptExportCsv(sources, "cost", func(c *counters.Counters) string {
-			c.SetCumulative()
-			return fmt.Sprintf("%.2f", cost(c.Cumulative.Bandwidth, c.Cumulative.Images))
-		})
-
-	case "bandwidth -> csv":
-		promptExportCsv(sources, "bandwidth", func(c *counters.Counters) string {
-			c.SetCumulative()
-			return fmt.Sprint(c.Cumulative.Bandwidth / (1024 * 1024 * 1024))
-		})
-
-	case "images    -> csv":
-		promptExportCsv(sources, "images", func(c *counters.Counters) string {
-			c.SetCumulative()
-			return fmt.Sprint(c.Cumulative.Images)
-		})
+	items = []string{
+		"cost",
+		"bandwidth",
+		"images",
 	}
+
+	prompt = promptui.Select{
+		Label: "Field?",
+		Items: items,
+	}
+
+	_, field, err := prompt.Run()
+	if err != nil {
+		fmt.Printf("Export entry failed %v\n", err)
+		return false
+	}
+
+	items = []string{
+		"normal",
+		"cumulative",
+	}
+
+	prompt = promptui.Select{
+		Label: "Data?",
+		Items: items,
+	}
+
+	_, valueAggregation, err := prompt.Run()
+	if err != nil {
+		fmt.Printf("Export entry failed %v\n", err)
+		return false
+	}
+
+	promptExportCsv(sources, field, valueAggregation == "cumulative")
 
 	return true
 }
 
-func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *counters.Counters) string) {
+func promptExportCsv(sources *sources.Sources, field string, cumulative bool) {
 	validate := func(input string) error {
 		if !isValidFilePath(input) {
 			return errors.New("invalid export path")
@@ -76,7 +88,7 @@ func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *c
 
 	filePath, err := prompt.Run()
 	if err != nil {
-		promptExportCsv(sources, label, valueFunc)
+		promptExportCsv(sources, field, cumulative)
 		return
 	}
 
@@ -92,7 +104,7 @@ func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *c
 
 	// csv header
 	header := []string{
-		"imgix - " + label,
+		"imgix - " + field,
 	}
 
 	timesMap := map[string]int{}
@@ -113,9 +125,19 @@ func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *c
 		timesMap[t] = i
 	}
 
-	sourceDataMatrix := [][]string{}
-	for _, sourceData := range sources.Data {
-		row := make([]string, len(times), len(times))
+	var sourceDataMatrix matrix
+	switch field {
+	case "cost":
+		sourceDataMatrix = floatMatrix{}
+	case "bandwidth":
+		sourceDataMatrix = intMatrix{}
+	case "images":
+		sourceDataMatrix = intMatrix{}
+	}
+
+	sourceDataMatrix = sourceDataMatrix.size(len(times), len(sources.Data))
+
+	for y, sourceData := range sources.Data {
 
 		for t, c := range sourceData.Counters {
 			timeIndex, ok := timesMap[t]
@@ -123,11 +145,29 @@ func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *c
 				continue // should not happen
 			}
 
-			row[timeIndex] = valueFunc(c)
-		}
+			c.SetSum()
 
-		row = append([]string{sourceData.Attributes.Name}, row...)
-		sourceDataMatrix = append(sourceDataMatrix, row)
+			switch field {
+			case "cost":
+
+				v := cost(c.Sum.Bandwidth, c.Sum.Images)
+				sourceDataMatrix.insert(timeIndex, y, v)
+
+			case "bandwidth":
+
+				v := c.Sum.Bandwidth
+				sourceDataMatrix.insert(timeIndex, y, v/(1024*1024*1024))
+
+			case "images":
+
+				v := c.Sum.Images
+				sourceDataMatrix.insert(timeIndex, y, v)
+			}
+		}
+	}
+
+	if cumulative {
+		sourceDataMatrix = sourceDataMatrix.cumulative()
 	}
 
 	header = append(header, times...)
@@ -137,7 +177,9 @@ func promptExportCsv(sources *sources.Sources, label string, valueFunc func(c *c
 		panic(err)
 	}
 
-	for _, row := range sourceDataMatrix {
+	for y, row := range sourceDataMatrix.toString() {
+		row = append([]string{sources.Data[y].Attributes.Name}, row...)
+
 		err := csv.Write(row)
 		if err != nil {
 			panic(err)

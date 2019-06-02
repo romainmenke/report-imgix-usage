@@ -34,147 +34,73 @@ func Get(auth string, id string, from time.Time, to time.Time) (*Counters, error
 
 type MultipleCounters []*Counters
 
-func (x MultipleCounters) Cumulative() *Counters {
+func (x MultipleCounters) Sum() *Counters {
 	if len(x) == 0 {
 		return &Counters{}
 	}
 
-	cumulative := &Counters{
+	sum := &Counters{
 		Included: x[0].Included,
 		Jsonapi:  x[0].Jsonapi,
 		Meta:     x[0].Meta,
 	}
 
 	for _, e := range x {
-		cumulative.Data = append(cumulative.Data, e.Data...)
+		sum.Data = append(sum.Data, e.Data...)
 	}
 
-	cumulative.SetCumulative()
+	sum.SetSum()
 
-	return cumulative
+	return sum
 }
 
 type Counters struct {
-	Data       []Data        `json:"data"`
-	Included   []interface{} `json:"included"`
-	Jsonapi    Jsonapi       `json:"jsonapi"`
-	Meta       Meta          `json:"meta"`
-	Cumulative *Attributes   `json:"-"`
+	Data     []Data        `json:"data"`
+	Included []interface{} `json:"included"`
+	Jsonapi  Jsonapi       `json:"jsonapi"`
+	Meta     Meta          `json:"meta"`
+	Sum      *Attributes   `json:"-"`
 }
 
-func (x *Counters) SetCumulative() {
-	if x.Cumulative != nil {
+func (x *Counters) SetSum() {
+	if x.Sum != nil {
 		return
 	}
 
-	cumulative := Attributes{}
+	sum := Attributes{}
 
 	for _, data := range x.Data {
-		cumulative.Bandwidth += data.Attributes.Bandwidth
-		cumulative.CdnBandwidth += data.Attributes.CdnBandwidth
-		cumulative.CdnErrors += data.Attributes.CdnErrors
-		cumulative.CdnErrorsMild += data.Attributes.CdnErrorsMild
-		cumulative.CdnErrorsSevere += data.Attributes.CdnErrorsSevere
-		cumulative.CdnMisses += data.Attributes.CdnMisses
-		cumulative.CdnRequests += data.Attributes.CdnRequests
-		cumulative.ConvertBandwidth += data.Attributes.ConvertBandwidth
-		cumulative.ConvertImages += data.Attributes.ConvertImages
-		cumulative.ConvertTime += data.Attributes.ConvertTime
-		cumulative.Errors += data.Attributes.Errors
-		cumulative.ErrorsMild += data.Attributes.ErrorsMild
-		cumulative.ErrorsSevere += data.Attributes.ErrorsSevere
-		cumulative.FetchBandwidth += data.Attributes.FetchBandwidth
-		cumulative.FetchRequests += data.Attributes.FetchRequests
-		cumulative.FetchTime += data.Attributes.FetchTime
-		cumulative.Images += data.Attributes.Images
-		cumulative.QueueTime += data.Attributes.QueueTime
-		cumulative.RenderBandwidth += data.Attributes.RenderBandwidth
-		cumulative.RenderErrors += data.Attributes.RenderErrors
-		cumulative.RenderErrorsMild += data.Attributes.RenderErrorsMild
-		cumulative.RenderErrorsSevere += data.Attributes.RenderErrorsSevere
-		cumulative.RenderRequests += data.Attributes.RenderRequests
-		cumulative.RenderTime += data.Attributes.RenderTime
-		cumulative.Renders += data.Attributes.Renders
-		cumulative.Requests += data.Attributes.Requests
-		cumulative.ResponseTime += data.Attributes.ResponseTime
-		cumulative.Successes += data.Attributes.Successes
+		sum.Bandwidth += data.Attributes.Bandwidth
+		sum.CdnBandwidth += data.Attributes.CdnBandwidth
+		sum.CdnErrors += data.Attributes.CdnErrors
+		sum.CdnErrorsMild += data.Attributes.CdnErrorsMild
+		sum.CdnErrorsSevere += data.Attributes.CdnErrorsSevere
+		sum.CdnMisses += data.Attributes.CdnMisses
+		sum.CdnRequests += data.Attributes.CdnRequests
+		sum.ConvertBandwidth += data.Attributes.ConvertBandwidth
+		sum.ConvertImages += data.Attributes.ConvertImages
+		sum.ConvertTime += data.Attributes.ConvertTime
+		sum.Errors += data.Attributes.Errors
+		sum.ErrorsMild += data.Attributes.ErrorsMild
+		sum.ErrorsSevere += data.Attributes.ErrorsSevere
+		sum.FetchBandwidth += data.Attributes.FetchBandwidth
+		sum.FetchRequests += data.Attributes.FetchRequests
+		sum.FetchTime += data.Attributes.FetchTime
+		sum.Images += data.Attributes.Images
+		sum.QueueTime += data.Attributes.QueueTime
+		sum.RenderBandwidth += data.Attributes.RenderBandwidth
+		sum.RenderErrors += data.Attributes.RenderErrors
+		sum.RenderErrorsMild += data.Attributes.RenderErrorsMild
+		sum.RenderErrorsSevere += data.Attributes.RenderErrorsSevere
+		sum.RenderRequests += data.Attributes.RenderRequests
+		sum.RenderTime += data.Attributes.RenderTime
+		sum.Renders += data.Attributes.Renders
+		sum.Requests += data.Attributes.Requests
+		sum.ResponseTime += data.Attributes.ResponseTime
+		sum.Successes += data.Attributes.Successes
 	}
 
-	x.Cumulative = &cumulative
-}
-
-func (x *Counters) CsvRow() []string {
-	if x.Cumulative == nil {
-		x.SetCumulative()
-	}
-
-	row := []string{
-		fmt.Sprintf("%d", x.Cumulative.Bandwidth/(1024*1024)),
-		fmt.Sprintf("%d", x.Cumulative.CdnBandwidth/(1024*1024)),
-		fmt.Sprintf("%d", x.Cumulative.CdnErrors),
-		fmt.Sprintf("%d", x.Cumulative.CdnErrorsMild),
-		fmt.Sprintf("%d", x.Cumulative.CdnErrorsSevere),
-		fmt.Sprintf("%d", x.Cumulative.CdnMisses),
-		fmt.Sprintf("%d", x.Cumulative.CdnRequests),
-		fmt.Sprintf("%d", x.Cumulative.ConvertBandwidth/(1024*1024)),
-		fmt.Sprintf("%d", x.Cumulative.ConvertImages),
-		fmt.Sprintf("%d", x.Cumulative.ConvertTime),
-		fmt.Sprintf("%d", x.Cumulative.Errors),
-		fmt.Sprintf("%d", x.Cumulative.ErrorsMild),
-		fmt.Sprintf("%d", x.Cumulative.ErrorsSevere),
-		fmt.Sprintf("%d", x.Cumulative.FetchBandwidth/(1024*1024)),
-		fmt.Sprintf("%d", x.Cumulative.FetchRequests),
-		fmt.Sprintf("%d", x.Cumulative.FetchTime),
-		fmt.Sprintf("%d", x.Cumulative.Images),
-		fmt.Sprintf("%d", x.Cumulative.QueueTime),
-		fmt.Sprintf("%d", x.Cumulative.RenderBandwidth/(1024*1024)),
-		fmt.Sprintf("%d", x.Cumulative.RenderErrors),
-		fmt.Sprintf("%d", x.Cumulative.RenderErrorsMild),
-		fmt.Sprintf("%d", x.Cumulative.RenderErrorsSevere),
-		fmt.Sprintf("%d", x.Cumulative.RenderRequests),
-		fmt.Sprintf("%d", x.Cumulative.RenderTime),
-		fmt.Sprintf("%d", x.Cumulative.Renders),
-		fmt.Sprintf("%d", x.Cumulative.Requests),
-		fmt.Sprintf("%d", x.Cumulative.ResponseTime),
-		fmt.Sprintf("%d", x.Cumulative.Successes),
-	}
-
-	return row
-}
-
-func CsvHeaders() []string {
-	headers := []string{
-		"Bandwidth",
-		"CdnBandwidth",
-		"CdnErrors",
-		"CdnErrorsMild",
-		"CdnErrorsSevere",
-		"CdnMisses",
-		"CdnRequests",
-		"ConvertBandwidth",
-		"ConvertImages",
-		"ConvertTime",
-		"Errors",
-		"ErrorsMild",
-		"ErrorsSevere",
-		"FetchBandwidth",
-		"FetchRequests",
-		"FetchTime",
-		"Images",
-		"QueueTime",
-		"RenderBandwidth",
-		"RenderErrors",
-		"RenderErrorsMild",
-		"RenderErrorsSevere",
-		"RenderRequests",
-		"RenderTime",
-		"Renders",
-		"Requests",
-		"ResponseTime",
-		"Successes",
-	}
-
-	return headers
+	x.Sum = &sum
 }
 
 type Attributes struct {

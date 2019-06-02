@@ -68,7 +68,7 @@ func promptListForSingleSource(sourceData *sources.Data) bool {
 		}
 	}
 
-	selectedCounters := foundCounters.Cumulative()
+	selectedCounters := foundCounters.Sum()
 
 	fmt.Printf(
 		"%-20s%-20s%-20s\n",
@@ -79,9 +79,9 @@ func promptListForSingleSource(sourceData *sources.Data) bool {
 
 	fmt.Printf(
 		"%-20s%-20s%-20s\n",
-		fmt.Sprintf("%.2f", cost(selectedCounters.Cumulative.Bandwidth, selectedCounters.Cumulative.Images)),
-		fmt.Sprintf("%d gb", selectedCounters.Cumulative.Bandwidth/(1024*1024*1024)),
-		fmt.Sprint(selectedCounters.Cumulative.Images),
+		fmt.Sprintf("%.2f", cost(selectedCounters.Sum.Bandwidth, selectedCounters.Sum.Images)),
+		fmt.Sprintf("%d gb", selectedCounters.Sum.Bandwidth/(1024*1024*1024)),
+		fmt.Sprint(selectedCounters.Sum.Images),
 	)
 
 	return true
@@ -107,7 +107,7 @@ func promptListForAllSource(allSources *sources.Sources) bool {
 		}
 	}
 
-	selectedCounters := foundCounters.Cumulative()
+	selectedCounters := foundCounters.Sum()
 
 	fmt.Printf(
 		"%-20s%-20s%-20s\n",
@@ -118,9 +118,9 @@ func promptListForAllSource(allSources *sources.Sources) bool {
 
 	fmt.Printf(
 		"%-20s%-20s%-20s\n",
-		fmt.Sprintf("%.2f", cost(selectedCounters.Cumulative.Bandwidth, selectedCounters.Cumulative.Images)),
-		fmt.Sprintf("%d gb", selectedCounters.Cumulative.Bandwidth/(1024*1024*1024)),
-		fmt.Sprint(selectedCounters.Cumulative.Images),
+		fmt.Sprintf("%.2f", cost(selectedCounters.Sum.Bandwidth, selectedCounters.Sum.Images)),
+		fmt.Sprintf("%d gb", selectedCounters.Sum.Bandwidth/(1024*1024*1024)),
+		fmt.Sprint(selectedCounters.Sum.Images),
 	)
 
 	return true
