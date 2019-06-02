@@ -1,4 +1,4 @@
-module github.com/romainmenke/imgix-report
+module github.com/romainmenke/report-imgix-usage
 
 go 1.12
 
