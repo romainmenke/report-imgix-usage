@@ -7,15 +7,13 @@ import (
 	"time"
 )
 
-func Get(auth string, id string, from time.Time, to time.Time) (*Counters, error) {
-	req, err := http.NewRequest("GET", "https://api.imgix.com/v4/sources/"+id+"/counters?filter%5Bend%5D="+fmt.Sprint(to.Unix())+"&filter%5Bstart%5D="+fmt.Sprint(from.Unix()), nil)
+func Get(client *http.Client, id string, from time.Time, to time.Time) (*Counters, error) {
+	req, err := http.NewRequest(http.MethodGet, "https://api.imgix.com/v4/sources/"+id+"/counters?filter%5Bend%5D="+fmt.Sprint(to.Unix())+"&filter%5Bstart%5D="+fmt.Sprint(from.Unix()), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

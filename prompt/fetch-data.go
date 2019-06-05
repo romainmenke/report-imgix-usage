@@ -12,15 +12,15 @@ import (
 	"github.com/romainmenke/report-imgix-usage/sources"
 )
 
-func getAllData(auth string) *sources.Sources {
+func getAllData(client *http.Client) *sources.Sources {
 	fmt.Println("Fetching all report data, this might take a while...")
 
-	cacheRoundTripper, closeCacheRoundTripper := httpcache.CachingRoundTripper()
+	cacheRoundTripper, closeCacheRoundTripper := httpcache.CachingRoundTripper(client)
 	defer closeCacheRoundTripper()
 
-	http.DefaultClient.Transport = cacheRoundTripper
+	client.Transport = cacheRoundTripper
 
-	foundSources, err := sources.Get(auth, 0)
+	foundSources, err := sources.Get(client, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -49,10 +49,11 @@ func getAllData(auth string) *sources.Sources {
 			go func(x *sources.Data, s time.Time, t time.Time) {
 				defer wg.Done()
 
-				err := x.GetCounters(auth, s, t)
+				err := x.GetCounters(client, s, t)
 				if err != nil {
 					panic(err)
 				}
+
 			}(sourceData, start, end)
 
 		}

@@ -21,7 +21,9 @@ func (x RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	return x(req)
 }
 
-func CachingRoundTripper() (http.RoundTripper, func()) {
+func CachingRoundTripper(client *http.Client) (http.RoundTripper, func()) {
+	next := client.Transport
+
 	db, err := bolt.Open("./imgix-report-cache.db", 0600, nil)
 	if err != nil {
 		panic(err)
@@ -38,31 +40,38 @@ func CachingRoundTripper() (http.RoundTripper, func()) {
 
 	limiter := rate.NewLimiter(3, 1)
 
-	return RoundTripper(func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("Cache-Control") != "no-cache" {
-				resp := Get(db, req)
-				if resp != nil {
+	return RoundTripper(
+			func(req *http.Request) (*http.Response, error) {
+				if req.Method != http.MethodGet {
+					return next.RoundTrip(req)
+				}
+
+				if req.Header.Get("Cache-Control") != "no-cache" {
+					resp := Get(db, req)
+					if resp != nil {
+						return resp, nil
+					}
+				}
+
+				err := limiter.Wait(context.Background())
+				if err != nil {
+					return nil, err
+				}
+
+				resp, err := next.RoundTrip(req)
+				if err != nil {
+					return nil, err
+				}
+
+				if resp.StatusCode/100 != 2 {
 					return resp, nil
 				}
-			}
 
-			err := limiter.Wait(context.Background())
-			if err != nil {
-				return nil, err
-			}
-
-			resp, err := http.DefaultTransport.RoundTrip(req)
-			if err != nil {
-				return nil, err
-			}
-
-			if resp.StatusCode/100 != 2 {
+				Put(db, req, resp)
 				return resp, nil
-			}
-
-			Put(db, req, resp)
-			return resp, nil
-		}), func() {
+			},
+		),
+		func() {
 			err := db.Close()
 			if err != nil {
 				log.Println(err)

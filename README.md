@@ -26,7 +26,5 @@ Follow the interactive CLI steps
 ### Authentication :
 
 - these are undocumented API's without a proper login/auth flow
-- login to IMGIX in the browser and use the inspector to grab your Auth token
-- enter the Auth token when prompted
-
-![Screenshot 2019-06-02 at 16 09 30](https://user-images.githubusercontent.com/11521496/58762738-11dd3400-8553-11e9-92ee-6de0285e3238.png)
+- uses the same API calls as the web interface to login with your email and password
+- **as always inspect the source code of any tool before trusting it with sensitive information**

@@ -10,16 +10,15 @@ import (
 	"github.com/romainmenke/report-imgix-usage/counters"
 )
 
-func Get(auth string, page int) (*Sources, error) {
-	req, err := http.NewRequest("GET", "https://api.imgix.com/v4/sources?filter%5Benabled%5D=true&page%5Bnumber%5D="+fmt.Sprint(page)+"&page%5Bsize%5D=40", nil)
+func Get(client *http.Client, page int) (*Sources, error) {
+	req, err := http.NewRequest(http.MethodGet, "https://api.imgix.com/v4/sources?filter%5Benabled%5D=true&page%5Bnumber%5D="+fmt.Sprint(page)+"&page%5Bsize%5D=40", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
 	req.Header.Set("Cache-Control", "no-cache")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func Get(auth string, page int) (*Sources, error) {
 	}
 
 	if sources.Meta.Pagination.HasNextPage {
-		extraSources, err := Get(auth, page+1)
+		extraSources, err := Get(client, page+1)
 		if err != nil {
 			return nil, err
 		}
@@ -113,8 +112,8 @@ type Data struct {
 	Counters      map[string]*counters.Counters `json:"-"`
 }
 
-func (x *Data) GetCounters(auth string, from time.Time, to time.Time) error {
-	c, err := counters.Get(auth, x.ID, from, to)
+func (x *Data) GetCounters(client *http.Client, from time.Time, to time.Time) error {
+	c, err := counters.Get(client, x.ID, from, to)
 	if err != nil {
 		return err
 	}
