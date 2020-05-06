@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/jinzhu/now v1.1.1
-	github.com/manifoldco/promptui v0.3.2
+	github.com/manifoldco/promptui v0.7.0
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	go.etcd.io/bbolt v1.3.4
