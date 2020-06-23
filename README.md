@@ -1,3 +1,5 @@
+![Code scanning - action](https://github.com/romainmenke/report-imgix-usage/workflows/Code%20scanning%20-%20action/badge.svg)
+
 # Report IMGIX usage
 
 __⚠️ uses undocumented API's to gather the reports, might break at any time ⚠️__
