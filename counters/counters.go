@@ -18,6 +18,7 @@ func Get(client *http.Client, id string, from time.Time, to time.Time) (*Counter
 		return nil, err
 	}
 
+	// testing actions
 	defer resp.Body.Close()
 
 	counters := &Counters{}
