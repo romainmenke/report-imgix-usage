@@ -2,7 +2,6 @@ package prompt
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -102,8 +101,8 @@ func promptAuthEmailPassword(client *http.Client) bool {
 	}
 
 	payload := map[string]map[string]interface{}{
-		"data": map[string]interface{}{
-			"type": "users",
+		"data": {
+			"type": "sessions",
 			"attributes": map[string]string{
 				"email":    email,
 				"password": password,
@@ -117,9 +116,9 @@ func promptAuthEmailPassword(client *http.Client) bool {
 		return false
 	}
 
-	resp, err := http.Post("https://api.imgix.com/v4/users/login", "application/vnd.api+json", bytes.NewBuffer(body))
+	resp, err := http.Post("https://api.imgix.com/v4/sessions?include=account", "application/vnd.api+json", bytes.NewBuffer(body))
 	if err != nil {
-		fmt.Println("Authentication failed")
+		fmt.Println("Authentication failed", err)
 		return false
 	}
 
@@ -127,14 +126,14 @@ func promptAuthEmailPassword(client *http.Client) bool {
 
 	respData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Authentication failed")
+		fmt.Println("Authentication failed", err)
 		return false
 	}
 
 	respPayload := map[string]interface{}{}
 	err = json.Unmarshal(respData, &respPayload)
 	if err != nil {
-		fmt.Println("Authentication failed")
+		fmt.Println("Authentication failed", err)
 		return false
 	}
 
@@ -144,7 +143,7 @@ func promptAuthEmailPassword(client *http.Client) bool {
 	} else if attributes, ok := data["attributes"].(map[string]interface{}); !ok {
 		fmt.Println("Authentication failed")
 		return false
-	} else if auth, ok := attributes["api_key"].(string); !ok {
+	} else if auth, ok := attributes["token"].(string); !ok {
 		fmt.Println("Authentication failed")
 		return false
 	} else {
@@ -164,7 +163,7 @@ func AuthRoundTripper(client *http.Client, auth string) http.RoundTripper {
 	next := client.Transport
 
 	return RoundTripper(func(req *http.Request) (*http.Response, error) {
-		req.Header.Set("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(auth+":"))))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", auth))
 
 		return next.RoundTrip(req)
 	})

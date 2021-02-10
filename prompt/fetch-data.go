@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"sync"
@@ -39,11 +40,12 @@ func getAllData(client *http.Client) *sources.Sources {
 	wg := sync.WaitGroup{}
 
 	for monthOffset := 0; monthOffset < months; monthOffset++ {
-
 		start := now.New(time.Now().AddDate(0, -1*(monthOffset+1), 0)).BeginningOfMonth()
 		end := now.New(time.Now().AddDate(0, -1*(monthOffset+1), 0)).EndOfMonth()
 
 		for _, sourceData := range foundSources.Data {
+
+			log.Printf("downloading %d - %s : %s", start.Year(), start.Month().String(), sourceData.Attributes.Name)
 
 			wg.Add(1)
 			go func(x *sources.Data, s time.Time, t time.Time) {
