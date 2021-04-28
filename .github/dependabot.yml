@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: github.com/manifoldco/promptui
+    versions:
+    - 0.8.0
+  - dependency-name: go.etcd.io/bbolt
+    versions:
+    - 1.3.5
