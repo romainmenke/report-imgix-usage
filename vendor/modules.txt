@@ -9,7 +9,7 @@ github.com/jinzhu/now
 github.com/manifoldco/promptui
 github.com/manifoldco/promptui/list
 github.com/manifoldco/promptui/screenbuf
-# go.etcd.io/bbolt v1.3.7
+# go.etcd.io/bbolt v1.3.8
 ## explicit; go 1.17
 go.etcd.io/bbolt
 # golang.org/x/sys v0.5.0
