@@ -56,6 +56,8 @@ func getAllData(client *http.Client) *sources.Sources {
 					panic(err)
 				}
 
+				log.Printf("did download %d - %s : %s", s.Year(), t.Month().String(), x.Attributes.Name)
+
 			}(sourceData, start, end)
 
 		}

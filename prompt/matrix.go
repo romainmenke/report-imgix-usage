@@ -12,10 +12,10 @@ type matrix interface {
 type intMatrix [][]int
 
 func (v intMatrix) cumulative() matrix {
-	output := make([][]int, len(v), len(v))
+	output := make([][]int, len(v))
 
 	for y, yv := range v {
-		output[y] = make([]int, len(yv), len(yv))
+		output[y] = make([]int, len(yv))
 		var cumulative int
 		for x, xv := range yv {
 			cumulative = cumulative + xv
@@ -27,10 +27,10 @@ func (v intMatrix) cumulative() matrix {
 }
 
 func (v intMatrix) toString() [][]string {
-	output := make([][]string, len(v), len(v))
+	output := make([][]string, len(v))
 
 	for y, yv := range v {
-		output[y] = make([]string, len(yv), len(yv))
+		output[y] = make([]string, len(yv))
 		for x, xv := range yv {
 			output[y][x] = fmt.Sprint(xv)
 		}
@@ -42,13 +42,13 @@ func (v intMatrix) toString() [][]string {
 func (v intMatrix) size(x int, y int) matrix {
 	growY := y - len(v)
 	if growY > 0 {
-		v = append(v, make([][]int, growY, growY)...)
+		v = append(v, make([][]int, growY)...)
 	}
 
 	for i, yv := range v {
 		growX := x - len(yv)
 		if growX > 0 {
-			v[i] = append(v[i], make([]int, growX, growX)...)
+			v[i] = append(v[i], make([]int, growX)...)
 		}
 	}
 
@@ -66,10 +66,10 @@ func (v intMatrix) insert(x int, y int, value interface{}) matrix {
 type floatMatrix [][]float64
 
 func (v floatMatrix) cumulative() matrix {
-	output := make([][]float64, len(v), len(v))
+	output := make([][]float64, len(v))
 
 	for y, yv := range v {
-		output[y] = make([]float64, len(yv), len(yv))
+		output[y] = make([]float64, len(yv))
 		var cumulative float64
 		for x, xv := range yv {
 			cumulative = cumulative + xv
@@ -81,10 +81,10 @@ func (v floatMatrix) cumulative() matrix {
 }
 
 func (v floatMatrix) toString() [][]string {
-	output := make([][]string, len(v), len(v))
+	output := make([][]string, len(v))
 
 	for y, yv := range v {
-		output[y] = make([]string, len(yv), len(yv))
+		output[y] = make([]string, len(yv))
 		for x, xv := range yv {
 			output[y][x] = fmt.Sprintf("%.2f", xv)
 		}
@@ -96,13 +96,13 @@ func (v floatMatrix) toString() [][]string {
 func (v floatMatrix) size(x int, y int) matrix {
 	growY := y - len(v)
 	if growY > 0 {
-		v = append(v, make([][]float64, growY, growY)...)
+		v = append(v, make([][]float64, growY)...)
 	}
 
 	for i, yv := range v {
 		growX := x - len(yv)
 		if growX > 0 {
-			v[i] = append(v[i], make([]float64, growX, growX)...)
+			v[i] = append(v[i], make([]float64, growX)...)
 		}
 	}
 
