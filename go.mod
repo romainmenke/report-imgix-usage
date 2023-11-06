@@ -6,7 +6,7 @@ require (
 	github.com/jinzhu/now v1.1.5
 	github.com/manifoldco/promptui v0.9.0
 	go.etcd.io/bbolt v1.3.8
-	golang.org/x/time v0.3.0
+	golang.org/x/time v0.4.0
 )
 
 require (
