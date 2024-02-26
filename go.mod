@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/jinzhu/now v1.1.5
 	github.com/manifoldco/promptui v0.9.0
-	go.etcd.io/bbolt v1.3.8
+	go.etcd.io/bbolt v1.3.9
 	golang.org/x/time v0.5.0
 )
 
