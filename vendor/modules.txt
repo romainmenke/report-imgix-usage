@@ -9,11 +9,14 @@ github.com/jinzhu/now
 github.com/manifoldco/promptui
 github.com/manifoldco/promptui/list
 github.com/manifoldco/promptui/screenbuf
-# go.etcd.io/bbolt v1.3.11
-## explicit; go 1.22
+# go.etcd.io/bbolt v1.4.0
+## explicit; go 1.23
 go.etcd.io/bbolt
-# golang.org/x/sys v0.13.0
-## explicit; go 1.17
+go.etcd.io/bbolt/errors
+go.etcd.io/bbolt/internal/common
+go.etcd.io/bbolt/internal/freelist
+# golang.org/x/sys v0.29.0
+## explicit; go 1.18
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/time v0.10.0
