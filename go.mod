@@ -1,6 +1,8 @@
 module github.com/romainmenke/report-imgix-usage
 
-go 1.20
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/jinzhu/now v1.1.5
@@ -11,5 +13,5 @@ require (
 
 require (
 	github.com/chzyer/readline v1.5.1 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
