@@ -1,13 +1,14 @@
 module github.com/romainmenke/report-imgix-usage
 
-go 1.23
+go 1.23.0
+
 toolchain go1.23.2
 
 require (
 	github.com/jinzhu/now v1.1.5
 	github.com/manifoldco/promptui v0.9.0
 	go.etcd.io/bbolt v1.4.0
-	golang.org/x/time v0.11.0
+	golang.org/x/time v0.12.0
 )
 
 require (
