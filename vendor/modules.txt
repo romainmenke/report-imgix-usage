@@ -9,7 +9,7 @@ github.com/jinzhu/now
 github.com/manifoldco/promptui
 github.com/manifoldco/promptui/list
 github.com/manifoldco/promptui/screenbuf
-# go.etcd.io/bbolt v1.4.2
+# go.etcd.io/bbolt v1.4.3
 ## explicit; go 1.23
 go.etcd.io/bbolt
 go.etcd.io/bbolt/errors
